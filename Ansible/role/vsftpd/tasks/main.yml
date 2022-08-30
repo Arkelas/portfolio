@@ -1,0 +1,13 @@
+---
+# tasks file for vsftpd
+- name: Install Vsftpd
+  package:
+    name: vsftpd 
+    state: present
+
+- name: Install configuration file
+  template:
+    src: vsftpd.conf.j2
+    dest: /etc/vsftpd.conf
+    mode: '0600'
+  notify: restart vsftpd
