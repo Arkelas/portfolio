@@ -1,0 +1,12 @@
+---
+- hosts: rtest
+  become: true
+  tasks:
+    - name: Install Nginx
+      apt:
+        name=nginx
+        state=latest
+    - name: Modifying index.html
+      template:
+        src: /etc/ansible/playbooks/templates/nginx.j2
+        dest: /usr/share/nginx/html/index.html

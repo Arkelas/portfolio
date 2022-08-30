@@ -1,0 +1,20 @@
+---
+- hosts: rtest
+  gather_facts: no
+  become: yes
+  tasks:
+  - name: Add a new user named user1
+    user:
+      name: user1
+      shell: /bin/bash
+
+  - name: Make ssh directory
+    file:
+      path: /home/user1/.ssh/
+      state: directory
+
+  - name: Copy encrypted ssh file
+    copy:
+      src: ~/B6.5.1/id_rsa.pub
+      dest: /home/user1/.ssh/id_rsa.pub
+
