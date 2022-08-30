@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    stages {
+        stage('Fetch repo'){
+            steps{
+                git branch: 'main', url: 'https://github.com/Arkelas/proj11.git'
+            }
+        }
+        stage('Start nginx container and check') {
+            steps {
+                script {
+                    docker.image('nginx:1.22.0-alpine').withRun('-p 9889:80 ' + '--mount type=bind,source="$WORKSPACE/index.html",target=/usr/share/nginx/html/index.html') { c ->
+                        // wait until container is up
+                        sh "sleep 2"
+                        // || true необходимо для того, чтобы ошибка curl не свалил пайплайн.
+                        int RESPONSE = sh(script: "curl -sLI -w '%{http_code}' http://127.0.0.1:9889 -o /dev/null || true", returnStdout: true)
+                        if (RESPONSE!=200){
+                            sh "curl -s -X POST https://api.telegram.org/bot5456347793:AAH4CJNa-vsCj7FFaKKrKnVoCre3kN15gqc/sendMessage -d chat_id=-656573478 -d text='Site status changed to ${RESPONSE}'"
+                            currentBuild.result = 'FAILURE'
+                            // Если код ответа на 200, то сравнивать md5 сумму нет смысла, сразу сворачиваем пайплайн
+                            return
+                        }
+                        sh 'wget -O index1.html 127.0.0.1:9889/index.html'
+                        def MD5GIT = sh (script: 'md5sum index.html | awk \'{print $1}\'', returnStdout: true)
+                        def MD5NGINX = sh (script: 'md5sum index1.html | awk \'{print $1}\'', returnStdout: true)
+                        if (MD5GIT!=MD5NGINX){
+                            sh "curl -s -X POST https://api.telegram.org/bot5456347793:AAH4CJNa-vsCj7FFaKKrKnVoCre3kN15gqc/sendMessage -d chat_id=-656573478 -d text='MD5 is not equal!'"
+                            currentBuild.result = 'FAILURE'
+                        }
+                    }           
+                }
+            }
+        }
+    }
+}
