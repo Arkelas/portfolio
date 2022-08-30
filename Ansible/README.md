@@ -1,4 +1,4 @@
-# Playbooks 
+# Playbooks and roles
 **dnsmasq** - роль, настраивающая кэширующий DNS-сервер dnsmasq. <br />
 **motd** - Первый опыт работы с темплейтами <br />
 **nginx** - Установка nginx с добавлением в index.html информации из ansible_facts <br />
