@@ -4,7 +4,7 @@
 
 Имеем заранее настроенный postgres сервер, соответствующий конфигурации, указанной в srv/app/web.conf <br />
 Строчка билда: `docker build --tag practice:1.0` <br />
-Строчка запуска контейнера (в образе отсутствует сам скрипт): 'docker run --mount type=bind,src=/srv/app,dst=/srv/app/ -p 80:5000 --rm --name practice practice:1.0' <br />
+Строчка запуска контейнера (в образе отсутствует сам скрипт): `docker run --mount type=bind,src=/srv/app,dst=/srv/app/ -p 80:5000 --rm --name practice practice:1.0` <br />
 Скриншот работающего микросервиса: https://yadi.sk/i/ikpeMgNvPy-0ow
 
 # wget favicon
