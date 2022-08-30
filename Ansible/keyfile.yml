@@ -1,0 +1,22 @@
+- hosts: all 
+  gather_facts: false
+  remote_user: root
+  tasks:
+    - name: copy key file
+      copy: 
+        src: /home/support/.ssh/id_rsa
+        dest: /home/support/.ssh/id_rsa
+        mode: '0600'
+        owner: support
+        group: support
+
+    - name: copy git config file
+      copy:
+        src: /home/support/.gitconfig
+        dest: /home/support/.gitconfig
+        mode: '0664'
+        owner: support
+        group: support
+ 
+        
+

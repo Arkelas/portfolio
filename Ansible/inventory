@@ -1,0 +1,3 @@
+[jenkins]
+10.129.0.20 ansible_user=support
+
