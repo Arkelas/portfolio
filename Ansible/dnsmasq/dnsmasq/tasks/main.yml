@@ -1,0 +1,17 @@
+---
+- name: install dnsmasq 
+  yum:
+    name: dnsmasq
+    state: latest
+
+- name: Set configuration file
+  template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+  notify: restart dnsmasq
+
+- name: Check dnsmasq is running 
+  service:
+    name: dnsmasq
+    state: started
+    enabled: yes

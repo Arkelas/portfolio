@@ -1,0 +1,27 @@
+---
+- name: install packages 
+  apt:
+    name: 
+      - nginx
+      - php-fpm
+    state: latest
+
+- name: create root directory
+  file:
+    path: /opt/nginx/ansible
+    state: directory
+    owner: www-data
+    mode: '0744'
+
+- name: copy index.php
+  copy:
+    src: index.php
+    dest: /opt/nginx/ansible/ 
+
+- name: copy nginx site conf
+  copy:
+    src: default
+    dest: /etc/nginx/sites-available/default
+  notify: restart nginx
+
+

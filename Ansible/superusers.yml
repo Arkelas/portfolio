@@ -1,0 +1,33 @@
+---
+- hosts: rtest
+  gather_facts: no
+  become: yes
+  tasks:
+
+  - name: make group superusers
+    group:
+      name: superusers
+      state: present
+
+  - name: add user2 to group
+    user:
+      name: user2
+      shell: /bin/bash
+      group: superusers
+
+  - name: add user3 to group
+    user:
+      name: user3
+      shell: /bin/bash
+      group: superusers
+
+  - name: add superusers to sudoers
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%superusers'
+      line: '%superusers ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'
+
+
+
