@@ -1,0 +1,44 @@
+x-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "1000m"  
+    max-file: "1"
+
+services:
+
+  nginx:
+    image: nginx:1.23.0-alpine
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${WEB_PORT:-80}:80"
+    volumes:
+      - ./www:/var/www
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - net
+    logging: *logging
+    depends_on:
+      - php
+# А вот тут загвоздка. Сервис php не выдаст нужный кондишн, пока не поднят nginx,
+# а nginx в свою очередь не поднимется без нужного кондишна :D Поэтому просто закоментировал условие
+#      php:
+#        condition: service_healthy
+  
+  php:
+    build: .
+    restart: unless-stopped
+    networks:
+      - net
+    volumes:
+      - ./www:/var/www
+    logging: *logging
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://nginx | grep works"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    
+networks:
+  net:
+
