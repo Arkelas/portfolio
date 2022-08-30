@@ -1,0 +1,2 @@
+This file is blank
+Using it as motd file
