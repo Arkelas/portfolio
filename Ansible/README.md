@@ -1,5 +1,6 @@
 # Playbooks and roles
 **dnsmasq** - роль, настраивающая кэширующий DNS-сервер dnsmasq. <br />
+**jenkins** - Плейбук, настраивающий Jenkins. 3 машины, Jenkins, Prod и Stage. Установка docker на все машины, добавление возможности машине Jenkins ходить по ssh на Stage и Prod. <br />
 **motd** - Первый опыт работы с темплейтами <br />
 **nginx** - Установка nginx с добавлением в index.html информации из ansible_facts <br />
 **nginx-php-fpm** - роль, настраивающая связку nginx+php-fpm и выдающая при обращении к главной странице веб-сервера информацию о php (содержимое index.php — <?php phpinfo();?>). <br />

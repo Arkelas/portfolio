@@ -1,0 +1,7 @@
+[jenkins]
+10.129.0.20 ansible_user=support
+
+[prodstage]
+10.129.0.10 ansible_user=support
+10.129.0.36 ansible_user=support
+

@@ -1,0 +1,129 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+
+# Jenkins
+  - name: Download Jenkins Repo 
+    apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+    when: inventory_hostname in groups['jenkins']
+
+  - name: ensure the repo is configured    
+    apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+    when: inventory_hostname in groups['jenkins']
+
+  - name: update apt cache
+    apt:
+      update_cache: yes
+      state: latest
+    when: inventory_hostname in groups['jenkins']
+
+  - name: install java
+    apt:
+      name: openjdk-11-jdk
+      state: present
+    when: inventory_hostname in groups['jenkins']
+     
+  - name: install jenkins
+    apt:
+      name: jenkins
+      state: latest
+    when: inventory_hostname in groups['jenkins']
+
+  - name: start jenkins
+    service:
+      name: jenkins
+      enabled: true
+      state: started
+    when: inventory_hostname in groups['jenkins']
+
+# Docker
+  - name: Docker - Install required system packages
+    apt:
+      pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - virtualenv
+        - python3-setuptools
+      state: latest
+      update_cache: true    
+
+  - name: Docker - Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Docker - Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      state: present
+
+  - name: Docker - Deb - Update apt and install docker-ce
+    apt:
+      name: docker-ce
+      state: latest
+      update_cache: true
+
+  - name: Docker - Start Docker service
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Make docker group
+    group: 
+      name: docker
+      state: present
+    when: inventory_hostname in groups['jenkins']
+
+  - name: Add jenkins to docker group
+    user:
+      name: jenkins
+      groups: docker
+      append: yes
+    when: inventory_hostname in groups['jenkins']
+
+# Jenkins user settings
+#  - name: Add keypair to jenkins user
+#    openssh_keypair:
+#      path: /var/lib/jenkins/.ssh/id_rsa
+#      comment: "jenkins_key"
+#      owner: jenkins
+#      group: jenkins
+#    when: inventory_hostname in groups['jenkins']
+
+  - name: fetch public ssh key
+    shell: cat /var/lib/jenkins/.ssh/id_rsa.pub
+    register: ssh_keys
+    when: inventory_hostname in groups['jenkins']
+
+  - name: Add user jenkins to Prod and Stage machines
+    user:
+      name: jenkins
+      shell: /bin/bash
+    when: inventory_hostname in groups['prodstage']
+
+  - name: deploy key on Prod and Stage servers
+    authorized_key: user=jenkins key="{{ item[0] }}"
+    delegate_to: "{{ item[1] }}"
+    with_nested:
+      - "{{ ssh_keys.stdout }}"
+      - "{{groups['prodstage']}}"
+    when: inventory_hostname in groups['jenkins']
+
+  - name: Allow jenkins group to have passwordless sudo
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%jenkins'
+      line: '%jenkins ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'
+ 
+
+        
