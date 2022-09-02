@@ -1,0 +1,31 @@
+groups: 
+- name: alert.rules
+  rules:
+  - alert: HTTP Code is changed
+    expr: probe_http_status_code != 200
+    for: 1m
+    labels:
+      severity: 2
+    annotations:
+      summary: "HTTP Response Code : {{ $value }} for URL *{{ $labels.instance }}*."
+      description: "*{{ $labels.instance }}* of job *{{ $labels.job }}* is down"
+
+  - alert: Server Response is too long
+    expr: probe_http_duration_seconds{phase="processing"} > 5
+    for: 0m
+    labels:
+      severity: 3
+    annotations:
+      summary: "Server response is too long: {{ $value }}"
+      description: "*{{ $labels.instance }}* of job *{{ $labels.job }}* is laggy"
+
+  - alert: Server has been rebooted
+    expr: (time()-node_boot_time_seconds{instance="node-exporter:9100"}) < 180
+    for: 0m
+    labels:
+      severity: 2
+    annotations:
+      summary: "Server has been rebooted!"
+      description: "Server has been rebooted!"
+  
+

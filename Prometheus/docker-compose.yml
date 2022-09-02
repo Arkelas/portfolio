@@ -4,6 +4,7 @@ services:
         image: prom/prometheus:latest
         volumes:
             - ./prometheus:/etc/prometheus/
+            - ./prometheus_data:/prometheus
         command:
             - --config.file=/etc/prometheus/prometheus.yml
         ports:
@@ -11,6 +12,9 @@ services:
         restart: always
         depends_on:
             - alertmanager
+            - node-exporter
+            - blackbox-exporter
+
     alertmanager-bot:
         command:
             - --alertmanager.url=http://alertmanager:9093
@@ -18,25 +22,25 @@ services:
             - --store=bolt
             - --bolt.path=/data/bot.db
         environment:
-            TELEGRAM_ADMIN: "-656573478"
+            TELEGRAM_ADMIN: "422547418"
             TELEGRAM_TOKEN: 5456347793:AAH4CJNa-vsCj7FFaKKrKnVoCre3kN15gqc 
         image: metalmatze/alertmanager-bot:0.4.3
         ports:
-        - 8080:8080
+            - 8080:8080
         restart: always
         volumes:
-        - ./data:/data
+            - ./data:/data
 
     alertmanager:
-      image: prom/alertmanager:v0.21.0
-      ports:
-        - 9093:9093
-      volumes:
-        - ./alertmanager/:/etc/alertmanager/
-      restart: always
-      command:
-        - '--config.file=/etc/alertmanager/config.yml'
-        - '--storage.path=/etc/alertmanager/data'              
+        image: prom/alertmanager:v0.21.0
+        ports:
+            - 9093:9093
+        volumes:
+            - ./alertmanager/:/etc/alertmanager/
+        restart: always
+        command:
+            - '--config.file=/etc/alertmanager/config.yml'
+            - '--storage.path=/etc/alertmanager/data'              
 
     node-exporter:
         image: prom/node-exporter

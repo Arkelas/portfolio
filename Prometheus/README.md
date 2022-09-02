@@ -1,4 +1,23 @@
 # Prometeus
 
-**Install** - docker-compose установка prometheus с тремя экспортерами: node, blackbox and cadvisor + grafana + alert manager. Кроме того настроены некоторые alert rules для примера.<br />
+Рабочий конфиг Prometheus + Blackbox + Node-exporter + Grafana + Alertmanager.
+Prometheus собирает метрики с Blackbox и Node-exporter, визуализирует в Grafana и высылает в Telegram сообщения в случае срабатывания соответствующих условий в Alertmanager:
+
+## В Grafana выведены следующие метрики:
+
+### Для локального сервера через Node-exporter:
+- время работы (Uptime);
+- нагрузка на процессор (CPU) в %;
+- использование памяти (RAM) в %;
+- использование диска в %.
+
+### Для определенного сайта через Blackbox:
+- возвращаемый статус-код;
+- задержка ответа сайта;
+- срок действия сертификата.
+
+## alertmanager срабатывает в случае:
+- изменился статус-код сайта
+- задержка сайта превышает 5 секунд
+- сервер перезагрузился (через метрику Uptime)
 
