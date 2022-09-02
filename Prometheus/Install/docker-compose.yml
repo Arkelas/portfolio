@@ -10,7 +10,33 @@ services:
             - 9090:9090
         restart: always
         depends_on:
-            - cadvisor          
+            - alertmanager
+    alertmanager-bot:
+        command:
+            - --alertmanager.url=http://alertmanager:9093
+            - --log.level=info
+            - --store=bolt
+            - --bolt.path=/data/bot.db
+        environment:
+            TELEGRAM_ADMIN: "-656573478"
+            TELEGRAM_TOKEN: 5456347793:AAH4CJNa-vsCj7FFaKKrKnVoCre3kN15gqc 
+        image: metalmatze/alertmanager-bot:0.4.3
+        ports:
+        - 8080:8080
+        restart: always
+        volumes:
+        - ./data:/data
+
+    alertmanager:
+      image: prom/alertmanager:v0.21.0
+      ports:
+        - 9093:9093
+      volumes:
+        - ./alertmanager/:/etc/alertmanager/
+      restart: always
+      command:
+        - '--config.file=/etc/alertmanager/config.yml'
+        - '--storage.path=/etc/alertmanager/data'              
 
     node-exporter:
         image: prom/node-exporter
@@ -36,25 +62,6 @@ services:
         volumes:
             - ./blackbox:/config
         command: --config.file=/config/blackbox.yml          
-
-    cadvisor:
-        image: gcr.io/cadvisor/cadvisor:latest
-        container_name: cadvisor
-        ports:
-            - 8080:8080
-        volumes:
-            - /:/rootfs:ro
-            - /var/run:/var/run:rw
-            - /sys:/sys:ro
-            - /var/lib/docker/:/var/lib/docker:ro
-        depends_on:
-            - redis
-
-    redis:
-        image: redis:latest
-        container_name: redis
-        ports:
-            - 6379:6379    
 
     grafana:
         image: grafana/grafana
